@@ -2,8 +2,8 @@ import { build as esbuild } from "esbuild";
 import { build as viteBuild } from "vite";
 import { rm, readFile } from "fs/promises";
 
-// server deps to bundle to reduce openat(2) syscalls
-// which helps cold start times
+// Packages that will be bundled.
+// Everything else will be externalized for faster cold starts.
 const allowlist = [
   "@google/generative-ai",
   "axios",
@@ -33,35 +33,45 @@ const allowlist = [
 ];
 
 async function buildAll() {
+  // 1. Clean old dist folder
   await rm("dist", { recursive: true, force: true });
 
-  console.log("building client...");
+  // 2. Build client (Vite)
+  console.log("Building client with Vite...");
   await viteBuild();
 
-  console.log("building server...");
+  // 3. Build backend using ESBuild in ESM mode
+  console.log("Building server with ESBuild...");
+
   const pkg = JSON.parse(await readFile("package.json", "utf-8"));
+
   const allDeps = [
     ...Object.keys(pkg.dependencies || {}),
     ...Object.keys(pkg.devDependencies || {}),
   ];
+
+  // Externalize all deps except allowlist
   const externals = allDeps.filter((dep) => !allowlist.includes(dep));
 
   await esbuild({
     entryPoints: ["server/index.ts"],
     platform: "node",
     bundle: true,
-    format: "cjs",
-    outfile: "dist/index.cjs",
+    format: "esm",              // IMPORTANT: must be ESM
+    target: "node20",           // Render uses Node 20
+    outfile: "dist/index.js",   // ESM output
+    minify: true,
     define: {
       "process.env.NODE_ENV": '"production"',
     },
-    minify: true,
     external: externals,
     logLevel: "info",
   });
+
+  console.log("Build complete!");
 }
 
 buildAll().catch((err) => {
-  console.error(err);
+  console.error("Build failed:", err);
   process.exit(1);
 });

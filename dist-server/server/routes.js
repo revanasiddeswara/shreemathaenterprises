@@ -1,4 +1,4 @@
-import { storage } from "./storage";
+import { storage } from "./storage.js";
 import { insertEnquirySchema } from "@shared/schema";
 import { z } from "zod";
 export async function registerRoutes(httpServer, app) {

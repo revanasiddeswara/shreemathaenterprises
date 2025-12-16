@@ -1,16 +1,38 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { insertEnquirySchema } from "@shared/schema";
+import { z } from "zod";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // put application routes here
-  // prefix all routes with /api
+  
+  app.post("/api/enquiries", async (req, res) => {
+    try {
+      const validatedData = insertEnquirySchema.parse(req.body);
+      const enquiry = await storage.createEnquiry(validatedData);
+      res.status(201).json(enquiry);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: "Invalid enquiry data", details: error.errors });
+      } else {
+        console.error("Error creating enquiry:", error);
+        res.status(500).json({ error: "Failed to create enquiry" });
+      }
+    }
+  });
 
-  // use storage to perform CRUD operations on the storage interface
-  // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
+  app.get("/api/enquiries", async (req, res) => {
+    try {
+      const enquiries = await storage.getEnquiries();
+      res.json(enquiries);
+    } catch (error) {
+      console.error("Error fetching enquiries:", error);
+      res.status(500).json({ error: "Failed to fetch enquiries" });
+    }
+  });
 
   return httpServer;
 }

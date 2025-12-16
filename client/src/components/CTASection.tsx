@@ -30,7 +30,7 @@ export function CTASection({
                 <div>
                   <p className="font-semibold">Call Us</p>
                   <a href="tel:+919876543210" className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-cta-phone">
-                    +91 98765 43210
+                    +91 89516 82834
                   </a>
                 </div>
               </div>
@@ -42,7 +42,7 @@ export function CTASection({
                 <div>
                   <p className="font-semibold">WhatsApp</p>
                   <a 
-                    href="https://wa.me/919876543210" 
+                    href="https://wa.me/8951682834" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-muted-foreground hover:text-green-600 transition-colors"
@@ -60,7 +60,7 @@ export function CTASection({
                 <div>
                   <p className="font-semibold">Email</p>
                   <a href="mailto:info@shreematha.com" className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-cta-email">
-                    info@shreematha.com
+                  shreemathaenterprises07@gmail.com
                   </a>
                 </div>
               </div>
@@ -72,7 +72,8 @@ export function CTASection({
                 <div>
                   <p className="font-semibold">Office Address</p>
                   <p className="text-muted-foreground">
-                    123 Industrial Area, Ballari - 583101, Karnataka
+                  Door No 353/B/2, Ward 9 Huguloor Ola Raste,
+                  Huvinahadagali Hoovina Hadagalli                                                                                                  
                   </p>
                 </div>
               </div>

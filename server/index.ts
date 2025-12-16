@@ -1,17 +1,25 @@
-import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { serveStatic } from "./static";
+import express, { type Request, type Response, type NextFunction } from "express";
+import { registerRoutes } from "./routes.js";
+import { serveStatic } from "./static.js";
 import { createServer } from "http";
+import { fileURLToPath } from "url";
+import path from "path";
 
 const app = express();
 const httpServer = createServer(app);
 
+// Fix ESM dirname for Windows/Node
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Extend IncomingMessage (ESM-safe)
 declare module "http" {
   interface IncomingMessage {
     rawBody: unknown;
   }
 }
 
+// Parse JSON and store raw body
 app.use(
   express.json({
     verify: (req, _res, buf) => {
@@ -22,6 +30,7 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
+// Centralized logging helper
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -33,25 +42,25 @@ export function log(message: string, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
+// Logging middleware for API requests
 app.use((req, res, next) => {
   const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+  const requestPath = req.path;
+  let capturedJsonResponse: any = undefined;
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
+  const originalJson = res.json;
+  res.json = function (body, ...rest) {
+    capturedJsonResponse = body;
+    return originalJson.apply(res, [body, ...rest]);
   };
 
   res.on("finish", () => {
     const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+    if (requestPath.startsWith("/api")) {
+      let logLine = `${req.method} ${requestPath} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-
       log(logLine);
     }
   });
@@ -59,32 +68,32 @@ app.use((req, res, next) => {
   next();
 });
 
+// MAIN SERVER FUNCTION
 (async () => {
+  // Register API routes BEFORE Vite middleware
   await registerRoutes(httpServer, app);
 
+  // Error handler middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
     res.status(status).json({ message });
-    throw err;
+    throw err; // preserve server logs
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // PRODUCTION → serve static files from dist
   if (process.env.NODE_ENV === "production") {
     serveStatic(app);
+
+  // DEVELOPMENT → attach Vite middleware (middlewareMode: true)
   } else {
-    const { setupVite } = await import("./vite");
+    const { setupVite } = await import("./vite.js");
     await setupVite(httpServer, app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
+  // Use PORT=... if defined, fallback to 5000
   const port = parseInt(process.env.PORT || "5000", 10);
+
   httpServer.listen(
     {
       port,
@@ -92,7 +101,7 @@ app.use((req, res, next) => {
       reusePort: true,
     },
     () => {
-      log(`serving on port ${port}`);
+      log(`server running at http://localhost:${port}`);
     },
   );
 })();

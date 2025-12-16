@@ -12,7 +12,8 @@ async function buildAll() {
   await viteBuild();
 
   console.log("Building server with TypeScript compiler...");
-  await run("tsc --project tsconfig.server.json");
+  await run("npx tsc --project tsconfig.server.json");
+
 
   console.log("Build completed successfully.");
 }

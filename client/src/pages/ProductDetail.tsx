@@ -82,9 +82,7 @@ export default function ProductDetail() {
 
             <h1 className="text-3xl font-bold">{product.name}</h1>
 
-            <p className="text-center font-semibold text-muted-foreground">
-                     ₹ {Number(product.price).toLocaleString("en-IN")}
-                    </p>
+            <p className="text-2xl font-bold text-primary">₹ {Number(product.price).toLocaleString("en-IN")}</p>
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <p><strong>Capacity:</strong> {product.capacity} Ltr</p>

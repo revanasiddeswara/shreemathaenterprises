@@ -1,5 +1,5 @@
 import { storage } from "./storage.js";
-import { insertEnquirySchema } from "../shared/schema";
+import { insertEnquirySchema } from "../shared/schema.js";
 import { z } from "zod";
 export async function registerRoutes(httpServer, app) {
     app.post("/api/enquiries", async (req, res) => {

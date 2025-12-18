@@ -34,9 +34,12 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           <div className="space-y-4">
             <div className="flex items-center gap-2" data-testid="footer-logo">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-                <Droplets className="h-6 w-6 text-primary-foreground" />
-              </div>
+               <img
+  src="/logo.png"
+  alt="Shree Matha Logo"
+  className="h-10 w-auto"
+  data-testid="nav-logo-img"
+/>
               <div>
                 <p className="text-lg font-bold leading-tight">Shree Matha</p>
                 <p className="text-xs text-muted-foreground leading-tight">Enterprises</p>
@@ -47,7 +50,7 @@ export function Footer() {
             </p>
             <div className="flex gap-3">
               <a
-                href="https://wa.me/919876543210"
+                href="https://wa.me/918951682834"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-600 text-white hover-elevate"
@@ -57,7 +60,7 @@ export function Footer() {
                 <SiWhatsapp className="h-4 w-4" />
               </a>
               <a
-                href="#"
+                href="https://www.facebook.com/share/1APADSxa4a/"
                 className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white hover-elevate"
                 aria-label="Facebook"
                 data-testid="footer-facebook"
@@ -65,21 +68,21 @@ export function Footer() {
                 <SiFacebook className="h-4 w-4" />
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/shree_matha_enterprises?igsh=NTdmaGhvMTdtM3pp"
                 className="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-600 text-white hover-elevate"
                 aria-label="Instagram"
                 data-testid="footer-instagram"
               >
                 <SiInstagram className="h-4 w-4" />
               </a>
-              <a
+              {/* <a
                 href="#"
                 className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-700 text-white hover-elevate"
                 aria-label="LinkedIn"
                 data-testid="footer-linkedin"
               >
                 <SiLinkedin className="h-4 w-4" />
-              </a>
+              </a> */}
             </div>
           </div>
 
@@ -127,26 +130,27 @@ export function Footer() {
               <li className="flex items-start gap-3">
                 <Phone className="h-4 w-4 mt-0.5 text-primary shrink-0" />
                 <div>
-                  <a href="tel:+919876543210" className="text-sm hover:text-primary transition-colors" data-testid="footer-phone">
-                    +91 98765 43210
+                  <a href="tel:+918951682834" className="text-sm hover:text-primary transition-colors" data-testid="footer-phone">
+                    +91 89516 82834
                   </a>
                   <br />
                   <a href="tel:+919876543211" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    +91 98765 43211
+                    +91 89516 82834
                   </a>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <Mail className="h-4 w-4 mt-0.5 text-primary shrink-0" />
                 <a href="mailto:info@shreematha.com" className="text-sm hover:text-primary transition-colors" data-testid="footer-email">
-                  info@shreematha.com
+                  shreemathaenterprises07@gmail.com
                 </a>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="h-4 w-4 mt-0.5 text-primary shrink-0" />
                 <span className="text-sm text-muted-foreground">
-                  123 Industrial Area,<br />
-                  Ballari - 583101,<br />
+                   Door No 353/B/2 ,<br /> Ward 9 Huguloor Ola Raste,
+                  Huvinahadagali,<br /> Hoovina Hadagalli- 583219,<br /> 
+                  Vijayanagara (Dist) 
                   Karnataka, India
                 </span>
               </li>
@@ -179,7 +183,7 @@ export function Footer() {
               </span>
               <span className="flex items-center gap-1">
                 <span className="h-2 w-2 rounded-full bg-orange-500"></span>
-                500+ Projects
+                50+ Projects
               </span>
             </div>
           </div>

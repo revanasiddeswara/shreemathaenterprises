@@ -21,14 +21,14 @@ export function PageHero({ title, description, showCTAs = true }: PageHeroProps)
           </p>
           {showCTAs && (
             <div className="flex flex-wrap gap-3">
-              <a href="tel:+919876543210">
+              <a href="tel:+918951682834">
                 <Button size="lg" variant="outline" data-testid="button-hero-call">
                   <Phone className="mr-2 h-4 w-4" />
                   Call Now
                 </Button>
               </a>
               <a
-                href="https://wa.me/919876543210?text=Hello%2C%20I%20would%20like%20to%20enquire%20about%20your%20services."
+                href="https://wa.me/918951682834?text=Hello%2C%20I%20would%20like%20to%20enquire%20about%20your%20services."
                 target="_blank"
                 rel="noopener noreferrer"
               >

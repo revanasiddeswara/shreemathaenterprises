@@ -85,8 +85,21 @@ export function EnquiryForm({ defaultService = "", compact = false }: EnquiryFor
   });
 
   const onSubmit = (data: EnquiryFormData) => {
-    mutation.mutate(data);
-  };
+  const message = `New Enquiry:
+Name: ${data.name}
+Phone: ${data.phone}
+Email: ${data.email || "N/A"}
+Service: ${data.service}
+Message: ${data.message || "N/A"}`;
+
+  const encoded = encodeURIComponent(message);
+
+  // YOUR WHATSAPP NUMBER
+  const phone = "918951682834"; 
+
+  window.location.href = `https://wa.me/${phone}?text=${encoded}`;
+};
+
 
   return (
     <Form {...form}>

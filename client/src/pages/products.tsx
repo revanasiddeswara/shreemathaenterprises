@@ -58,7 +58,7 @@ export default function ProductsPage() {
                     />
 
                     <p className="text-center font-semibold text-muted-foreground">
-                      ₹ {product.price}
+                     ₹ {Number(product.price).toLocaleString("en-IN")}
                     </p>
 
                     <ul className="space-y-2">

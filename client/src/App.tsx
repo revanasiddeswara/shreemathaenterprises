@@ -15,18 +15,23 @@ import SolarSolutions from "@/pages/SolarSolutions";
 import Projects from "@/pages/Projects";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
+import Products from "@/pages/products"
+import ProductDetail from "@/pages/ProductDetail"
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/domestic-ro" component={DomesticRO} />
+      <Route path="/domestic-ro" component={Products} />
       <Route path="/commercial-ro" component={CommercialRO} />
       <Route path="/high-mast-lights" component={HighMastLights} />
       <Route path="/solar-solutions" component={SolarSolutions} />
       <Route path="/projects" component={Projects} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
+      <Route path="/products" component={Products} />
+<Route path="/product/:id" component={ProductDetail} />
+
       <Route component={NotFound} />
     </Switch>
   );

@@ -42,7 +42,7 @@ export function CTASection({
                 <div>
                   <p className="font-semibold">WhatsApp</p>
                   <a 
-                    href="https://wa.me/8951682834" 
+                    href="https://wa.me/+91-8951682834" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-muted-foreground hover:text-green-600 transition-colors"

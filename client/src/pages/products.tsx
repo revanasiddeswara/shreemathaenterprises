@@ -18,8 +18,36 @@ import {
 import { fetchProducts } from "@/lib/productsApi";
 import type { Product } from "@/types/product";
 
-import { CheckCircle, Droplets, Search } from "lucide-react";
+import { CheckCircle, Droplets, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
+
+/* ---------------- CONFIG ---------------- */
+const ITEMS_PER_PAGE = 8; // 2 rows (4x2)
+
+/* ---------------- SKELETON ---------------- */
+function ProductSkeleton() {
+  return (
+    <Card className="animate-pulse">
+      <CardHeader className="text-center pb-2">
+        <div className="mx-auto h-16 w-16 rounded-full bg-muted mb-4" />
+        <div className="h-4 bg-muted rounded w-3/4 mx-auto mb-2" />
+        <div className="h-6 bg-muted rounded w-1/2 mx-auto" />
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="h-40 bg-muted rounded" />
+        <div className="h-4 bg-muted rounded w-1/2 mx-auto" />
+        <div className="space-y-2">
+          <div className="h-3 bg-muted rounded w-full" />
+          <div className="h-3 bg-muted rounded w-5/6" />
+        </div>
+        <div className="flex gap-2">
+          <div className="h-10 bg-muted rounded w-full" />
+          <div className="h-10 bg-muted rounded w-full" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function ProductsPage() {
   const { data, isLoading, isError } = useQuery({
@@ -30,32 +58,44 @@ export default function ProductsPage() {
   const [search, setSearch] = useState("");
   const [brand, setBrand] = useState("all");
   const [price, setPrice] = useState("all");
+  const [page, setPage] = useState(1);
 
+  /* ---------------- FILTER + SORT ---------------- */
   const filteredProducts = useMemo(() => {
     if (!data) return [];
 
-    return data.filter((p: Product) => {
-      const text = `${p.name} ${p.brand} ${p.capacity} ${p.price}`
-        .toLowerCase();
+    return data
+      .filter((p: Product) => {
+        const text = `${p.name} ${p.brand} ${p.capacity} ${p.price}`.toLowerCase();
 
-      const matchesSearch =
-        search.trim() === "" || text.includes(search.toLowerCase());
+        const matchesSearch =
+          search.trim() === "" || text.includes(search.toLowerCase());
 
-      const matchesBrand =
-        brand === "all" || p.brand?.toLowerCase() === brand.toLowerCase();
+        const matchesBrand =
+          brand === "all" || p.brand?.toLowerCase() === brand.toLowerCase();
 
-      const matchesPrice =
-        price === "all" ||
-        (price === "low" && p.price < 12000) ||
-        (price === "mid" && p.price >= 12000 && p.price <= 18000) ||
-        (price === "high" && p.price > 18000);
+        const matchesPrice =
+          price === "all" ||
+          (price === "low" && p.price < 12000) ||
+          (price === "mid" && p.price >= 12000 && p.price <= 18000) ||
+          (price === "high" && p.price > 18000);
 
-      return matchesSearch && matchesBrand && matchesPrice;
-    });
+        return matchesSearch && matchesBrand && matchesPrice;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name)); // A–Z
   }, [data, search, brand, price]);
 
-  if (isLoading) return <p className="p-8">Loading products…</p>;
-  if (isError || !data) return <p className="p-8">Failed to load products</p>;
+  /* ---------------- PAGINATION ---------------- */
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+
+  const paginatedProducts = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return filteredProducts.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredProducts, page]);
+
+  if (isError) {
+    return <p className="p-8 text-center">Failed to load products</p>;
+  }
 
   return (
     <div>
@@ -65,33 +105,24 @@ export default function ProductsPage() {
         description="Premium water purifiers for home and small commercial use. Trusted brands, expert installation and direct WhatsApp ordering."
       />
 
-      {/* SEARCH + FILTER */}
-      <section className="relative py-12 bg-gradient-to-br from-primary/5 via-background to-primary/5 border-b">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,hsl(var(--primary)/0.12),transparent_60%)]" />
-        <div className="relative mx-auto max-w-7xl px-4">
-          <div className="mb-6 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-2">
-              Find the Right Water Purifier
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Search by brand, capacity or price. Filter to match your needs.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-background/80 backdrop-blur rounded-xl p-4 shadow-sm">
-            {/* SEARCH */}
+      {/* SEARCH & FILTER */}
+      <section className="py-12 border-b bg-gradient-to-br from-primary/5 via-background to-primary/5">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-background rounded-xl p-4 shadow-sm">
             <div className="md:col-span-2 relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by brand, capacity, price (eg: 9L, 12000)"
+                placeholder="Search by brand, capacity or price"
                 className="pl-9 h-11"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
               />
             </div>
 
-            {/* BRAND */}
-            <Select value={brand} onValueChange={setBrand}>
+            <Select value={brand} onValueChange={(v) => { setBrand(v); setPage(1); }}>
               <SelectTrigger className="h-11">
                 <SelectValue placeholder="Brand" />
               </SelectTrigger>
@@ -104,8 +135,7 @@ export default function ProductsPage() {
               </SelectContent>
             </Select>
 
-            {/* PRICE */}
-            <Select value={price} onValueChange={setPrice}>
+            <Select value={price} onValueChange={(v) => { setPrice(v); setPage(1); }}>
               <SelectTrigger className="h-11">
                 <SelectValue placeholder="Price Range" />
               </SelectTrigger>
@@ -120,130 +150,133 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      {/* PRODUCTS / EMPTY STATE */}
+      {/* PRODUCTS */}
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-4">
-          {filteredProducts.length === 0 ? (
-            <div className="flex flex-col items-center text-center max-w-xl mx-auto">
-              <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-                <Droplets className="h-10 w-10 text-primary" />
-              </div>
-              <h3 className="text-2xl font-bold mb-2">
-                No Matching Products Found
-              </h3>
+
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
+                <ProductSkeleton key={i} />
+              ))}
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="text-center py-20">
+              <Droplets className="mx-auto h-16 w-16 text-primary mb-4" />
+              <h3 className="text-2xl font-bold mb-2">No Products Found</h3>
               <p className="text-muted-foreground mb-6">
-                Try adjusting your search or let our expert recommend the best
-                purifier for your water quality.
+                Try adjusting filters or contact us for expert guidance.
               </p>
-
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSearch("");
-                    setBrand("all");
-                    setPrice("all");
-                  }}
-                >
-                  Reset Filters
-                </Button>
-
-                <a
-                  href="https://wa.me/918951682834?text=Hello%20Shree%20Matha%20Enterprises%2C%20I%20need%20help%20choosing%20the%20right%20water%20purifier."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button className="bg-green-600 hover:bg-green-700">
-                    <SiWhatsapp className="mr-2 h-4 w-4" />
-                    Get Expert Help
-                  </Button>
-                </a>
-              </div>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSearch("");
+                  setBrand("all");
+                  setPrice("all");
+                  setPage(1);
+                }}
+              >
+                Reset Filters
+              </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredProducts.map((product) => {
-                const image = product.imageBaseUrl?.split("|")[0];
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {paginatedProducts.map((product) => {
+                  const image = product.imageBaseUrl?.split("|")[0];
 
-                return (
-                  <Card
-                    key={product.id}
-                    className="hover:shadow-xl hover:-translate-y-1 transition-all"
-                  >
-                    <CardHeader className="text-center pb-2">
-                      <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                        <Droplets className="h-8 w-8 text-primary" />
-                      </div>
-                      <CardTitle className="text-lg">
-                        {product.brand} {product.name}
-                      </CardTitle>
-                      <p className="text-2xl font-bold text-primary">
-                        {product.capacity} L
-                      </p>
-                    </CardHeader>
+                  return (
+                    <Card key={product.id} className="hover:shadow-xl hover:-translate-y-1 transition-all">
+                      <CardHeader className="text-center pb-2">
+                        <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                          <Droplets className="h-8 w-8 text-primary" />
+                        </div>
+                        <CardTitle className="text-lg">
+                          {product.brand} {product.name}
+                        </CardTitle>
+                        <p className="text-2xl font-bold text-primary">
+                          {product.capacity} L
+                        </p>
+                      </CardHeader>
 
-                    <CardContent className="space-y-4">
-                      <img
-                        src={image}
-                        alt={product.name}
-                        className="h-40 w-full object-contain rounded"
-                      />
+                      <CardContent className="space-y-4">
+                        <img
+                          src={image}
+                          alt={product.name}
+                          className="h-40 w-full object-contain rounded"
+                        />
 
-                      <p className="text-center font-semibold text-muted-foreground">
-                        ₹ {Number(product.price).toLocaleString("en-IN")}
-                      </p>
+                        <p className="text-center font-semibold text-muted-foreground">
+                          ₹ {Number(product.price).toLocaleString("en-IN")}
+                        </p>
 
-                      <ul className="space-y-2">
-                        {product.features.slice(0, 2).map((f, i) => (
-                          <li
-                            key={i}
-                            className="flex items-center gap-2 text-sm"
+                        <ul className="space-y-2">
+                          {product.features.slice(0, 2).map((f, i) => (
+                            <li key={i} className="flex items-center gap-2 text-sm">
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                              {f}
+                            </li>
+                          ))}
+                        </ul>
+
+                        <div className="flex gap-2">
+                          <Link href={`/product/${product.id}`} className="w-full">
+                            <Button variant="outline" className="w-full">
+                              View Details
+                            </Button>
+                          </Link>
+
+                          <a
+                            href={`https://wa.me/918951682834?text=${encodeURIComponent(
+                              `Hi Shree Matha Enterprises 👋\n\nI’m interested in ${product.brand} ${product.name} (${product.capacity}L).\nPlease share price, installation & warranty details.`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full"
                           >
-                            <CheckCircle className="h-4 w-4 text-green-500" />
-                            {f}
-                          </li>
-                        ))}
-                      </ul>
+                            <Button className="w-full bg-green-600 hover:bg-green-700">
+                              <SiWhatsapp className="mr-2 h-4 w-4" />
+                              Order
+                            </Button>
+                          </a>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
 
-                      <div className="flex gap-2">
-                        <Link
-                          href={`/product/${encodeURIComponent(
-                            product.name.toLowerCase().replace(/\s+/g, "-")
-                          )}`}
-                          className="w-full"
-                        >
-                          <Button variant="outline" className="w-full">
-                            View Details
-                          </Button>
-                        </Link>
+              {/* PAGINATION CONTROLS */}
+              <div className="flex justify-center items-center gap-2 mt-12">
+                <Button
+                  variant="outline"
+                  disabled={page === 1}
+                  onClick={() => setPage((p) => p - 1)}
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Prev
+                </Button>
 
-                        <a
-                          href={`https://wa.me/918951682834?text=${encodeURIComponent(
-                            `Hi Shree Matha Enterprises 👋  
-I’m interested in the ${product.brand} ${product.name} (${product.capacity}L).
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <Button
+                    key={i}
+                    variant={page === i + 1 ? "default" : "outline"}
+                    onClick={() => setPage(i + 1)}
+                  >
+                    {i + 1}
+                  </Button>
+                ))}
 
-Could you please share:
-• Final price
-• Installation details
-• Warranty & AMC info
-
-Thank you.`
-                          )}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full"
-                        >
-                          <Button className="w-full bg-green-600 hover:bg-green-700">
-                            <SiWhatsapp className="mr-2 h-4 w-4" />
-                            Order
-                          </Button>
-                        </a>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+                <Button
+                  variant="outline"
+                  disabled={page === totalPages}
+                  onClick={() => setPage((p) => p + 1)}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            </>
           )}
         </div>
       </section>

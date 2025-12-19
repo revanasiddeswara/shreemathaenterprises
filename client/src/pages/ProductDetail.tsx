@@ -19,7 +19,8 @@ export default function ProductDetail() {
   });
 
   if (isLoading) return <p className="p-8">⏳ Loading product...</p>;
-  if (error || !Array.isArray(data)) return <p className="p-8">❌ Failed to load product</p>;
+  if (error || !Array.isArray(data))
+    return <p className="p-8">❌ Failed to load product</p>;
 
   const product = data.find((p: Product) => String(p.id) === id);
 
@@ -39,7 +40,6 @@ export default function ProductDetail() {
       {/* PRODUCT MAIN */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-10">
-
           {/* IMAGE + COLORS */}
           <div>
             <Card>
@@ -82,13 +82,23 @@ export default function ProductDetail() {
 
             <h1 className="text-3xl font-bold">{product.name}</h1>
 
-            <p className="text-2xl font-bold text-primary">₹ {Number(product.price).toLocaleString("en-IN")}</p>
+            <p className="text-2xl font-bold text-primary">
+              ₹ {Number(product.price).toLocaleString("en-IN")}
+            </p>
 
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <p><strong>Capacity:</strong> {product.capacity} Ltr</p>
-              <p><strong>Purification:</strong> {product.purificationCapacity}</p>
-              <p><strong>Net Weight:</strong> {product.weight}</p>
-              <p><strong>Gross Weight:</strong> {product.grossWeight}</p>
+              <p>
+                <strong>Capacity:</strong> {product.capacity} Ltr
+              </p>
+              <p>
+                <strong>Purification:</strong> {product.purificationCapacity}
+              </p>
+              <p>
+                <strong>Net Weight:</strong> {product.weight}
+              </p>
+              <p>
+                <strong>Gross Weight:</strong> {product.grossWeight}
+              </p>
             </div>
 
             {/* FEATURES */}
@@ -117,15 +127,34 @@ export default function ProductDetail() {
               </CardContent>
             </Card>
 
-            {/* WHATSAPP CTA */}
             <a
               href={`https://wa.me/918951682834?text=${encodeURIComponent(
-                `Hello, I am interested in ${product.brand} ${product.name} (${product.capacity}L). Please share full details and installation process.`
+                `Hello Shree Matha Enterprises 👋
+
+I’m interested in the *${product.brand} ${product.name} (${
+                  product.capacity
+                }L)* RO Water Purifier.
+
+💧 Looking for a premium, long-term solution for safe drinking water.
+💰 Expected price: ₹${product.price.toLocaleString("en-IN")}
+
+🔗 Product details:
+${window.location.href}
+
+Please share:
+✔ Final price & offers
+✔ Installation timeline
+✔ Warranty & AMC details
+
+Thanks, awaiting your response.`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Button size="lg" className="w-full bg-green-600 hover:bg-green-700">
+              <Button
+                size="lg"
+                className="w-full bg-green-600 hover:bg-green-700"
+              >
                 <SiWhatsapp className="mr-2 h-5 w-5" />
                 Enquire on WhatsApp
               </Button>
@@ -139,15 +168,21 @@ export default function ProductDetail() {
         <div className="max-w-5xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
           <div>
             <p className="font-bold text-lg">✔ Free Installation</p>
-            <p className="text-sm text-muted-foreground">By trained technicians</p>
+            <p className="text-sm text-muted-foreground">
+              By trained technicians
+            </p>
           </div>
           <div>
             <p className="font-bold text-lg">✔ Water Testing</p>
-            <p className="text-sm text-muted-foreground">Before recommendation</p>
+            <p className="text-sm text-muted-foreground">
+              Before recommendation
+            </p>
           </div>
           <div>
             <p className="font-bold text-lg">✔ After Sales Support</p>
-            <p className="text-sm text-muted-foreground">AMC & service available</p>
+            <p className="text-sm text-muted-foreground">
+              AMC & service available
+            </p>
           </div>
         </div>
       </section>
